@@ -10,6 +10,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 def load_data():
     # read csv
     data = pd.read_csv('./SpotifyFeatures.csv')
+    print(f"csv loaded, {data.shape[0]} elements in total, {data.shape[1]} features in total")
     # reduce dataset to genres pop and classical, and liveness/loudness
     data = data.filter(items=['genre', 'liveness', 'loudness'])[(data['genre'] == 'Pop') | (data['genre'] == 'Classical')]
     # create input matrix with liveness/loudness scores
@@ -18,6 +19,7 @@ def load_data():
     target_mapping = {'Classical': 0, 'Pop': 1}
     # create target array with genre data, also map genre to class
     target = np.array([target_mapping[genre] for genre in data['genre'].values])
+    print(f"loaded {(target == 0).sum()} classical songs, {(target == 1).sum()} pop songs")
     # note: at this point songs are identified by their array index
     # use sklearn to split data into training/test pools
     return train_test_split(
@@ -40,6 +42,16 @@ def visualize_data(features, target, show_boundary = False, liveness_boundary = 
     plt.xlabel('Liveness')
     plt.ylabel('Loudness')
     plt.title('Training data visualization')
+    plt.legend()
+    plt.show()
+
+
+def visualize_errors(epochs, errors):
+    plt.figure(figsize=(8, 6))
+    plt.plot(range(epochs), errors)
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Training loss visualization')
     plt.legend()
     plt.show()
 
@@ -103,6 +115,7 @@ visualize_data(training_features, training_target)
 print("training...")
 weights, bias, errors = logistic_regression_fit(training_features, training_target, 1000, 0.005)
 print(f"finished training, final weights: {weights}, bias: {bias}")
+visualize_errors(1000, errors)
 
 # test model
 print("testing model...")
